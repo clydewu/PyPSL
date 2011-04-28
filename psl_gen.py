@@ -93,7 +93,7 @@ def main():
     if len(sys.argv) != 2:
 	print "Argument error: filename"
 	exit()
-    root = build_structure(sys.argv[1])
+    root = build_structure(file(sys.argv[1]))
     root = simplify(root)
     write_module(root)
 

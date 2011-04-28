@@ -2,10 +2,13 @@
 
 import sys
 
+#import psl list from psl.py
+from psl import *
+
 # every nodes could be a tuple or a integer
 # schema of tuple : (excp_rule, treenode)
 # Note 'treenode' is differenet from 'node' since 'treenode' may include serval 'node's.
-psl = ( 0, {'com':0, 'jp': (0, {'*':0, 'hokkaido':(0, {'*':0, 'pref':1}), 'tokyo':(0, {'*': 0, 'metro': 1})})})
+#psl = ( 0, {'com':0, 'jp': (0, {'*':0, 'hokkaido':(0, {'*':0, 'pref':1}), 'tokyo':(0, {'*': 0, 'metro': 1})})})
 
 # return a list
 # None : no match
@@ -83,11 +86,12 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
 	domain = sys.argv[1]
 	if domain is not None:
-	    print getMatchesFromLabels(domain.split('.'))
-	    print getPublicSuffix(domain)
-	    print isUnderPublicSuffix(domain)
+	    print "Matches: " + str(getMatchesFromLabels(domain.split('.')))
+	    print "getPublicSuffix: " + str(getPublicSuffix(domain))
+	    print "isPublicSuffix: " + str(isPublicSuffix(domain))
+	    print "hasPublicSuffix: " + str(hasPublicSuffix(domain))
+	    print "isUnderPublicSuffix: " + str(isUnderPublicSuffix(domain))
     else:
-
 	print "isPublicSuffix(\"www.metro.tokyo.jp\")"
 	print isPublicSuffix("www.metro.tokyo.jp")
 	print "isPublicSuffix(\"metro.tokyo.jp\")"
