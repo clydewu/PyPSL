@@ -14,33 +14,26 @@ from psl import *
 # None : no match
 # 0 : Match, Normal Rule
 # 1 : Match, Exception Rule
+
 def getMatchesFromLabels(labels):
-    def match_label(matches, depth, tree, labels):
+    def matchSubtree(matches, depth, tree, labels):
 	if tree is not None:
 	    if isinstance(tree, tuple):
 		excp_rule, tree_node = tree
 		if(depth != 0):
 		    matches[-depth] = excp_rule
-		#print "Lv " + str(depth) + " t"  + str(matches)
-		#print str(matches)
 		if depth < len(labels):
-		    subtree = tree_node.get(labels[-(depth+1)], tree_node.get('*', None))
+		    subtree = tree_node.get(unicode(labels[-(depth+1)],'utf-8'), tree_node.get('*', None))
 		else:
 		    subtree = None
-		if subtree is not None:
-		    #print "MATCH! subtree of next is " + labels[-(depth+1)] + ":"  + str(subtree)
-		    pass
-		match_label(matches, depth+1, subtree, labels)
+		matchSubtree(matches, depth+1, subtree, labels)
 	    else:
 		matches[-depth] = tree
-		#print "Lv " + str(depth) + " i" + str(matches)
-		#print str(matches)
 	else:
 	    pass
-	    #raise Exception('PSL Tree is None')
 
     matches = [None] * (len(labels))
-    match_label(matches, 0, psl, labels)
+    matchSubtree(matches, 0, psl, labels)
     return matches
 
 
@@ -92,33 +85,20 @@ if __name__ == '__main__':
 	    print "hasPublicSuffix: " + str(hasPublicSuffix(domain))
 	    print "isUnderPublicSuffix: " + str(isUnderPublicSuffix(domain))
     else:
-	print "isPublicSuffix(\"www.metro.tokyo.jp\")"
-	print isPublicSuffix("www.metro.tokyo.jp")
-	print "isPublicSuffix(\"metro.tokyo.jp\")"
-	print isPublicSuffix("metro.tokyo.jp")
-	print "isPublicSuffix(\"www.tokyo.jp\")"
-	print isPublicSuffix("www.tokyo.jp")
-	print "isPublicSuffix(\"tokyo.jp\")"
-	print isPublicSuffix("tokyo.jp")
+	print "isPublicSuffix(\"www.metro.tokyo.jp\")" + str(isPublicSuffix("www.metro.tokyo.jp"))
+	print "isPublicSuffix(\"metro.tokyo.jp\")" + str(isPublicSuffix("metro.tokyo.jp"))
+	print "isPublicSuffix(\"www.tokyo.jp\")" + str(isPublicSuffix("www.tokyo.jp"))
+	print "isPublicSuffix(\"tokyo.jp\")" + str(isPublicSuffix("tokyo.jp"))
 
 	print
-	print "hasPublicSuffix(\"www.metro.tokyo.jp\")"
-	print hasPublicSuffix("www.metro.tokyo.jp")
-	print "hasPublicSuffix(\"metro.tokyo.jp\")"
-	print hasPublicSuffix("metro.tokyo.jp")
-	print "hasPublicSuffix(\"www.tokyo.jp\")"
-	print hasPublicSuffix("www.tokyo.jp")
-	print "hasPublicSuffix(\"tokyo.jp\")"
-	print hasPublicSuffix("tokyo.jp")
-	print "hasPublicSuffix(\"tokyo.xxx\")"
-	print hasPublicSuffix("tokyo.xxx")
+	print "hasPublicSuffix(\"www.metro.tokyo.jp\")" + str(hasPublicSuffix("www.metro.tokyo.jp"))
+	print "hasPublicSuffix(\"metro.tokyo.jp\")" + str(hasPublicSuffix("metro.tokyo.jp"))
+	print "hasPublicSuffix(\"www.tokyo.jp\")" + str(hasPublicSuffix("www.tokyo.jp"))
+	print "hasPublicSuffix(\"tokyo.jp\")" + str(hasPublicSuffix("tokyo.jp"))
+	print "hasPublicSuffix(\"tokyo.xxx\")" + str(hasPublicSuffix("tokyo.xxx"))
 
 	print
-	print "isUnderPublicSuffix(\"www.metro.tokyo.jp\")"
-	print isUnderPublicSuffix("www.metro.tokyo.jp")
-	print "isUnderPublicSuffix(\"metro.tokyo.jp\")"
-	print isUnderPublicSuffix("metro.tokyo.jp")
-	print "isUnderPublicSuffix(\"www.tokyo.jp\")"
-	print isUnderPublicSuffix("www.tokyo.jp")
-	print "isUnderPublicSuffix(\"tokyo.jp\")"
-	print isUnderPublicSuffix("tokyo.jp")
+	print "isUnderPublicSuffix(\"www.metro.tokyo.jp\")" + str(isUnderPublicSuffix("www.metro.tokyo.jp"))
+	print "isUnderPublicSuffix(\"metro.tokyo.jp\")" + str(isUnderPublicSuffix("metro.tokyo.jp"))
+	print "isUnderPublicSuffix(\"www.tokyo.jp\")" + str(isUnderPublicSuffix("www.tokyo.jp"))
+	print "isUnderPublicSuffix(\"tokyo.jp\")" + str(isUnderPublicSuffix("tokyo.jp"))
