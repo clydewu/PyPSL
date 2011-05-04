@@ -18,7 +18,7 @@ from psl import *
 def getMatchesFromLabels(labels):
     def matchSubtree(matches, depth, tree, labels):
 	if tree is not None:
-	    if isinstance(tree, tuple):
+	    if isinstance(tree, list):
 		excp_rule, tree_node = tree
 		if(depth != 0):
 		    matches[-depth] = excp_rule
@@ -85,6 +85,11 @@ if __name__ == '__main__':
 	    print "hasPublicSuffix: " + str(hasPublicSuffix(domain))
 	    print "isUnderPublicSuffix: " + str(isUnderPublicSuffix(domain))
     else:
+	print "getMatchesFromLabels(\"\")"
+
+	print "getPublicSuffix(\"\"): " + str(getPublicSuffix(domain))
+
+	print 
 	print "isPublicSuffix(\"www.metro.tokyo.jp\")" + str(isPublicSuffix("www.metro.tokyo.jp"))
 	print "isPublicSuffix(\"metro.tokyo.jp\")" + str(isPublicSuffix("metro.tokyo.jp"))
 	print "isPublicSuffix(\"www.tokyo.jp\")" + str(isPublicSuffix("www.tokyo.jp"))

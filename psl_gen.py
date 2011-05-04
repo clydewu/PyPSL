@@ -1,107 +1,107 @@
 #!/usr/bin/env python2.5
 
 import sys
+import json
 
-'''Quick & dirty, not very well tested Public Suffix List support for Python.
+def buildStruct(fp):
+    def add_rule(root, rule):
+	if rule.startswith('!'):
+	    negate = 1
+	    rule = rule[1:]
+	else:
+	    negate = 0
 
-    This script expects "effective_tld_names.dat" (see below) to exist in the
-    current working directory. When executed, reads the file and writes to
-    standard output the source code for a Python module that exports a single
-    lookup() function. Calling this function with a DNS name will return the
-    public suffix for that name, e.g.
+	parts = rule.split('.')
+	find_node(root, parts)[0] = negate
 
-        www.foo.bar.baz.com -> baz.com
-        my.hospital.nhs.uk -> hospital.nhs.uk
-        some.company.co.uk -> company.co.uk
+    def find_node(parent, parts):
+	if not parts:
+	    return parent
 
-    effective_tld_names.dat can be retrieved from:
+	if len(parent) == 1:
+	    parent.append({})
 
-        http://publicsuffix.org/list/
-'''
+	assert len(parent) == 2
+	negate, children = parent
 
+	child = parts.pop()
+	try:
+	    child = child.encode('ascii')
+	except:
+	    pass
 
-def find_node(parent, parts):
-    if not parts:
-        return parent
+	child_node = children.get(child, None)
 
-    if len(parent) == 1:
-        parent.append({})
+	if not child_node:
+	    children[child] = child_node = [0]
 
-    assert len(parent) == 2
-    negate, children = parent
+	return find_node(child_node, parts)
 
-    child = parts.pop()
-    try:
-        child = child.encode('ascii')
-    except:
-        pass
+    # main problem
+    root = [0]
+    for line in fp:
+        line = line.decode('utf-8').strip()
+        if line.startswith('//') or not line:
+            continue
+	line = line.split()[0]
 
-    child_node = children.get(child, None)
+        add_rule(root, line)
 
-    if not child_node:
-        children[child] = child_node = [0]
+    return root
 
-    return find_node(child_node, parts)
-
-def add_rule(root, rule):
-    if rule.startswith('!'):
-        negate = 1
-        rule = rule[1:]
-    else:
-        negate = 0
-
-    parts = rule.split('.')
-    find_node(root, parts)[0] = negate
-
+# transform leafs from list to integer
 def simplify(node):
     if len(node) == 1:
         return node[0]
 
-    return (node[0], dict((k, simplify(v))
-                          for (k, v) in node[1].iteritems()))
+    return [node[0], dict((k, simplify(v))
+                          for (k, v) in node[1].iteritems())]
 
-def mini_pformat(o):
+#Customized toString() without spaces
+def getMiniString(o):
     if o in (0, 1):
         return str(o)
     elif type(o) in (str, unicode):
         return repr(o)
     elif type(o) is dict:
-        return '{' + ','.join((mini_pformat(k)+':'+mini_pformat(v))
+        return '{' + ','.join((getMiniString(k)+':'+getMiniString(v))
                               for (k, v) in o.iteritems()) + '}'
     else:
-        assert type(o) == tuple
+        #assert type(o) == tuple
         if len(o) == 1:
-            return '(%s,)' % mini_pformat(o2[0])
+            return '(%s,)' % getMiniString(o2[0])
         else:
-            return '(' + ','.join(mini_pformat(o2) for o2 in o) + ')'
+            return '[' + ','.join(getMiniString(o2) for o2 in o) + ']'
 
+def getStructByRuleFile(ruleFileName):
+    ruleFile = open(ruleFileName, 'r')
+    struct = simplify(buildStruct(ruleFile))
+    ruleFile.close()
+    return struct
 
-def build_structure(fp):
-    root = [0]
+def saveStructAsFile(struct, pyFileName):
+    pyFile = open(pyFileName, 'w')
+    content = "".join(['#!/usr/bin/env python\n', 'psl=', getMiniString(struct)])
+    pyFile.write(content)
+    pyFile.close()
 
-    for line in fp:
-        line = line.decode('utf-8').strip()
-        if line.startswith('//') or not line:
-            continue
-
-        add_rule(root, line.split()[0])
-
-    return root
-
+def getJsonByStruct(struct):
+    return json.dumps(struct)
 
 def main():
     if len(sys.argv) != 2:
 	print "Argument error: filename"
 	exit()
-    root = build_structure(file(sys.argv[1]))
-    root = simplify(root)
-    write_module(root)
 
-def write_module(root):
-    print '#!/usr/bin/env python'
-    print
-    print 'psl =', mini_pformat(root)
-    print
+    struct = buildStruct(file(sys.argv[1]))
+    print "struct:   " + str(struct)
+    ss = simplify(struct)
+    print "simplify: " + str(ss)
+    saveStructAsFile(ss, 'test.txt')
+    js = getJsonByStruct(ss)
+    print "js:       " + str(js)
+    res = json.loads(js)
+    print "restruct: " + str(res)
 
 
 if __name__ == '__main__':
